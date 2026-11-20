@@ -1,0 +1,45 @@
+name: Build wemm-audio llama-server (win cuda)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: wemm-audio
+
+      - name: Install CUDA Toolkit
+        uses: ./.github/actions/windows-setup-cuda
+        with:
+          cuda_version: '12.4'
+          cuda_arch: 'x64'
+
+      - name: Install Ninja
+        run: choco install ninja
+
+      - name: Build llama-server (CUDA, full)
+        shell: cmd
+        run: |
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
+          cmake -S . -B build -G "Ninja" ^
+            -DGGML_CUDA=ON ^
+            -DGGML_NATIVE=OFF ^
+            -DLLAMA_CURL=OFF ^
+            -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release -j %NUMBER_OF_PROCESSORS% --target llama-server
+
+      - name: Collect binaries
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path pkg | Out-Null
+          Copy-Item build/bin/llama-server.exe pkg/
+          Copy-Item build/bin/*.dll pkg/
+          Get-ChildItem pkg | Select-Object Name,Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: llama-server-wemm-cuda
+          path: pkg/
