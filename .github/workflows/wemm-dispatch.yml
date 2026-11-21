@@ -26,6 +26,7 @@ jobs:
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
           cmake -S . -B build -G "Ninja" ^
             -DGGML_CUDA=ON ^
+            -DLLAMA_BUILD_BORINGSSL=ON ^
             -DGGML_NATIVE=OFF ^
 
             -DCMAKE_BUILD_TYPE=Release
