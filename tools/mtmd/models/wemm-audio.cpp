@@ -29,9 +29,13 @@ ggml_cgraph * mtmd_graph_wemm_audio::build() {
 
     GGML_ASSERT(model.position_embeddings->ne[0] == 1280);
     GGML_ASSERT(model.position_embeddings->ne[1] >= n_whisper);
-    ggml_tensor * pos = ggml_view_2d(ctx0, model.position_embeddings,
-        model.position_embeddings->ne[0], n_whisper,
-        model.position_embeddings->nb[1], 0);
+    // official export stores position embeddings as F16; element-wise add needs F32
+    ggml_tensor * pos_f32 = model.position_embeddings->type == GGML_TYPE_F32
+        ? model.position_embeddings
+        : ggml_cast(ctx0, model.position_embeddings, GGML_TYPE_F32);
+    ggml_tensor * pos = ggml_view_2d(ctx0, pos_f32,
+        pos_f32->ne[0], n_whisper,
+        pos_f32->nb[1], 0);
 
     ggml_tensor * enc = build_vit(inp, n_whisper,
                             NORM_TYPE_NORMAL, FFN_GELU_ERF, pos, nullptr);
@@ -57,7 +61,11 @@ ggml_cgraph * mtmd_graph_wemm_audio::build() {
 
     // ---- qformer ----
     // learnable query [1, 4104] -> expand to [4104, 1, n_win]
-    ggml_tensor * q = ggml_reshape_3d(ctx0, model.wemm_q_tokens, C_q, 1, 1);
+    // official export stores q_tokens as F16; repeat needs matching F32
+    ggml_tensor * qf_query = model.wemm_q_tokens->type == GGML_TYPE_F32
+        ? model.wemm_q_tokens
+        : ggml_cast(ctx0, model.wemm_q_tokens, GGML_TYPE_F32);
+    ggml_tensor * q = ggml_reshape_3d(ctx0, qf_query, C_q, 1, 1);
     {
         ggml_tensor * q3 = ggml_new_tensor_3d(ctx0, GGML_TYPE_F32, C_q, 1, n_win);
         q = ggml_repeat(ctx0, q, q3);
