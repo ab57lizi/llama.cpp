@@ -2519,15 +2519,17 @@ struct mtmd_model_loader {
                     model.wemm_audio_proj_w = get_tensor("a.audio_proj.weight");
                     model.wemm_audio_proj_b = get_tensor("a.audio_proj.bias");
                     // whisper encoder layers -> generic vit layer fields
+                    // official export uses HF names: q_proj/k_proj/v_proj; k/v projections
+                    // carry no bias for k (v_proj.bias exists), so key.bias stays optional
                     model.layers.resize(hparams.n_layer);
                     for (int il = 0; il < hparams.n_layer; ++il) {
                         auto & L = model.layers[il];
-                        L.q_w = get_tensor(mtmd_format("a.layers.%d.self_attn.query.weight", il));
-                        L.q_b = get_tensor(mtmd_format("a.layers.%d.self_attn.query.bias", il));
-                        L.k_w = get_tensor(mtmd_format("a.layers.%d.self_attn.key.weight", il));
-                        L.k_b = get_tensor(mtmd_format("a.layers.%d.self_attn.key.bias", il));
-                        L.v_w = get_tensor(mtmd_format("a.layers.%d.self_attn.value.weight", il));
-                        L.v_b = get_tensor(mtmd_format("a.layers.%d.self_attn.value.bias", il));
+                        L.q_w = get_tensor(mtmd_format("a.layers.%d.self_attn.q_proj.weight", il));
+                        L.q_b = get_tensor(mtmd_format("a.layers.%d.self_attn.q_proj.bias", il));
+                        L.k_w = get_tensor(mtmd_format("a.layers.%d.self_attn.k_proj.weight", il));
+                        L.k_b = get_tensor(mtmd_format("a.layers.%d.self_attn.k_proj.bias", il), false);
+                        L.v_w = get_tensor(mtmd_format("a.layers.%d.self_attn.v_proj.weight", il));
+                        L.v_b = get_tensor(mtmd_format("a.layers.%d.self_attn.v_proj.bias", il), false);
                         L.o_w = get_tensor(mtmd_format("a.layers.%d.self_attn.out_proj.weight", il));
                         L.o_b = get_tensor(mtmd_format("a.layers.%d.self_attn.out_proj.bias", il));
                         L.ln_1_w   = get_tensor(mtmd_format("a.layers.%d.self_attn_layer_norm.weight", il));
@@ -2552,22 +2554,22 @@ struct mtmd_model_loader {
                         L.o_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.output.dense.bias", il));
                         L.ln_1_w   = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.output.LayerNorm.weight", il));
                         L.ln_1_b   = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.output.LayerNorm.bias", il));
-                        L.cross_attn_q_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.query.weight", il), false);
-                        L.cross_attn_q_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.query.bias", il), false);
-                        L.cross_attn_k_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.key.weight", il));
-                        L.cross_attn_k_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.key.bias", il));
-                        L.cross_attn_v_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.value.weight", il));
-                        L.cross_attn_v_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.value.bias", il));
+                        L.cross_attn_q_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.self.query.weight", il), false);
+                        L.cross_attn_q_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.self.query.bias", il), false);
+                        L.cross_attn_k_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.self.key.weight", il));
+                        L.cross_attn_k_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.self.key.bias", il));
+                        L.cross_attn_v_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.self.value.weight", il));
+                        L.cross_attn_v_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.self.value.bias", il));
                         L.cross_attn_o_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.output.dense.weight", il));
                         L.cross_attn_o_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.output.dense.bias", il));
                         L.cross_attn_norm_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.output.LayerNorm.weight", il));
                         L.cross_attn_norm_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.output.LayerNorm.bias", il));
-                        L.ff_up_w   = get_tensor(mtmd_format("a.qf.encoder.layer.%d.intermediate.dense.weight", il));
-                        L.ff_up_b   = get_tensor(mtmd_format("a.qf.encoder.layer.%d.intermediate.dense.bias", il));
-                        L.ff_down_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.output.dense.weight", il));
-                        L.ff_down_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.output.dense.bias", il));
-                        L.ln_2_w    = get_tensor(mtmd_format("a.qf.encoder.layer.%d.output.LayerNorm.weight", il));
-                        L.ln_2_b    = get_tensor(mtmd_format("a.qf.encoder.layer.%d.output.LayerNorm.bias", il));
+                        L.ff_up_w   = get_tensor(mtmd_format("a.qf.encoder.layer.%d.intermediate_query.dense.weight", il));
+                        L.ff_up_b   = get_tensor(mtmd_format("a.qf.encoder.layer.%d.intermediate_query.dense.bias", il));
+                        L.ff_down_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.output_query.dense.weight", il));
+                        L.ff_down_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.output_query.dense.bias", il));
+                        L.ln_2_w    = get_tensor(mtmd_format("a.qf.encoder.layer.%d.output_query.LayerNorm.weight", il));
+                        L.ln_2_b    = get_tensor(mtmd_format("a.qf.encoder.layer.%d.output_query.LayerNorm.bias", il));
                     }
                 } break;
             case PROJECTOR_TYPE_ULTRAVOX:
