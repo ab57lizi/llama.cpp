@@ -127,6 +127,11 @@ ggml_cgraph * mtmd_graph_wemm_audio::build() {
     }
     cb(cur, "wemm_projected", -1);
 
+    // mtmd eval reads the LAST graph node and expects the token count in ne[1]
+    // (see the "Invalid number of output tokens" check); our qformer keeps the
+    // window count in ne[2], so move it: [2048, 1, n_win] -> [2048, n_win, 1]
+    cur = ggml_cont(ctx0, ggml_permute(ctx0, cur, 0, 2, 1, 3));
+
     ggml_build_forward_expand(gf, cur);
     return gf;
 }
