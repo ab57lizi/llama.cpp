@@ -151,6 +151,17 @@ struct mtmd_model_loader {
             model.proj_type = projector_type_from_string(proj_type);
 
             if (model.proj_type == PROJECTOR_TYPE_UNKNOWN) {
+                // fallback: try general.architecture as the projector name.
+                // WeMM-Video audio.gguf ships only general.architecture = "wemm_audio"
+                // without a clip.audio.projector_type KV, so this path resolves it.
+                get_string("general.architecture", proj_type, false);
+                model.proj_type = projector_type_from_string(proj_type);
+                if (model.proj_type != PROJECTOR_TYPE_UNKNOWN) {
+                    LOG_INF("%s: projector type resolved from general.architecture: %s\n", __func__, proj_type.c_str());
+                }
+            }
+
+            if (model.proj_type == PROJECTOR_TYPE_UNKNOWN) {
                 throw std::runtime_error(mtmd_format("%s: unknown projector type: %s\n", __func__, proj_type.c_str()));
             }
 
