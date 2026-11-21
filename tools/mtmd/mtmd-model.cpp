@@ -2511,14 +2511,14 @@ struct mtmd_model_loader {
                     model.layers.resize(hparams.n_layer);
                     for (int il = 0; il < hparams.n_layer; ++il) {
                         auto & L = model.layers[il];
-                        L.attn_q_w = get_tensor(mtmd_format("a.layers.%d.self_attn.query.weight", il));
-                        L.attn_q_b = get_tensor(mtmd_format("a.layers.%d.self_attn.query.bias", il));
-                        L.attn_k_w = get_tensor(mtmd_format("a.layers.%d.self_attn.key.weight", il));
-                        L.attn_k_b = get_tensor(mtmd_format("a.layers.%d.self_attn.key.bias", il));
-                        L.attn_v_w = get_tensor(mtmd_format("a.layers.%d.self_attn.value.weight", il));
-                        L.attn_v_b = get_tensor(mtmd_format("a.layers.%d.self_attn.value.bias", il));
-                        L.attn_o_w = get_tensor(mtmd_format("a.layers.%d.self_attn.out_proj.weight", il));
-                        L.attn_o_b = get_tensor(mtmd_format("a.layers.%d.self_attn.out_proj.bias", il));
+                        L.q_w = get_tensor(mtmd_format("a.layers.%d.self_attn.query.weight", il));
+                        L.q_b = get_tensor(mtmd_format("a.layers.%d.self_attn.query.bias", il));
+                        L.k_w = get_tensor(mtmd_format("a.layers.%d.self_attn.key.weight", il));
+                        L.k_b = get_tensor(mtmd_format("a.layers.%d.self_attn.key.bias", il));
+                        L.v_w = get_tensor(mtmd_format("a.layers.%d.self_attn.value.weight", il));
+                        L.v_b = get_tensor(mtmd_format("a.layers.%d.self_attn.value.bias", il));
+                        L.o_w = get_tensor(mtmd_format("a.layers.%d.self_attn.out_proj.weight", il));
+                        L.o_b = get_tensor(mtmd_format("a.layers.%d.self_attn.out_proj.bias", il));
                         L.ln_1_w   = get_tensor(mtmd_format("a.layers.%d.self_attn_layer_norm.weight", il));
                         L.ln_1_b   = get_tensor(mtmd_format("a.layers.%d.self_attn_layer_norm.bias", il));
                         L.ff_up_w  = get_tensor(mtmd_format("a.layers.%d.fc1.weight", il));
@@ -2531,14 +2531,14 @@ struct mtmd_model_loader {
                     model.wemm_qf_layers.resize(2);
                     for (int il = 0; il < 2; ++il) {
                         auto & L = model.wemm_qf_layers[il];
-                        L.attn_q_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.self.query.weight", il));
-                        L.attn_q_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.self.query.bias", il));
-                        L.attn_k_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.self.key.weight", il));
-                        L.attn_k_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.self.key.bias", il));
-                        L.attn_v_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.self.value.weight", il));
-                        L.attn_v_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.self.value.bias", il));
-                        L.attn_o_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.output.dense.weight", il));
-                        L.attn_o_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.output.dense.bias", il));
+                        L.q_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.self.query.weight", il));
+                        L.q_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.self.query.bias", il));
+                        L.k_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.self.key.weight", il));
+                        L.k_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.self.key.bias", il));
+                        L.v_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.self.value.weight", il));
+                        L.v_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.self.value.bias", il));
+                        L.o_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.output.dense.weight", il));
+                        L.o_b = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.output.dense.bias", il));
                         L.ln_1_w   = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.output.LayerNorm.weight", il));
                         L.ln_1_b   = get_tensor(mtmd_format("a.qf.encoder.layer.%d.attention.output.LayerNorm.bias", il));
                         L.cross_attn_q_w = get_tensor(mtmd_format("a.qf.encoder.layer.%d.crossattention.query.weight", il), false);

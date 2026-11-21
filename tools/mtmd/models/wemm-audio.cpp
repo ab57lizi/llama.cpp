@@ -69,13 +69,13 @@ ggml_cgraph * mtmd_graph_wemm_audio::build() {
 
         // self-attention (query attends to itself)
         {
-            ggml_tensor * Q = ggml_add(ctx0, build_mm(L.attn_q_w, q), L.attn_q_b);
-            ggml_tensor * K = ggml_add(ctx0, build_mm(L.attn_k_w, q), L.attn_k_b);
-            ggml_tensor * V = ggml_add(ctx0, build_mm(L.attn_v_w, q), L.attn_v_b);
+            ggml_tensor * Q = ggml_add(ctx0, build_mm(L.q_w, q), L.q_b);
+            ggml_tensor * K = ggml_add(ctx0, build_mm(L.k_w, q), L.k_b);
+            ggml_tensor * V = ggml_add(ctx0, build_mm(L.v_w, q), L.v_b);
             Q = ggml_reshape_4d(ctx0, Q, d_head_q, n_heads_q, 1, n_win);
             K = ggml_reshape_4d(ctx0, K, d_head_q, n_heads_q, 1, n_win);
             V = ggml_reshape_4d(ctx0, V, d_head_q, n_heads_q, 1, n_win);
-            ggml_tensor * attn_out = build_attn(L.attn_o_w, L.attn_o_b,
+            ggml_tensor * attn_out = build_attn(L.o_w, L.o_b,
                                                 Q, K, V, nullptr, kq_scale, il);
             attn_out = ggml_reshape_3d(ctx0, attn_out, C_q, 1, n_win);
             q = build_norm(ggml_add(ctx0, attn_out, q), L.ln_1_w, L.ln_1_b,
