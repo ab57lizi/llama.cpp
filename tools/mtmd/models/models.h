@@ -306,6 +306,7 @@ struct mtmd_graph_lfm3a : mtmd_graph {
 
 struct mtmd_graph_wemm_audio : mtmd_graph {
     mtmd_graph_wemm_audio(mtmd_subcontext * ctx, const mtmd_image_f32 & img) : mtmd_graph(ctx, img) {}
+    ggml_cgraph * build() override;
 };
 
 struct mtmd_graph_granite_speech : mtmd_graph {
