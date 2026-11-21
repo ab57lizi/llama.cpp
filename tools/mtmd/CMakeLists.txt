@@ -36,7 +36,6 @@ if (MTMD_VIDEO)
 endif()
 
 add_library(mtmd
-set_property(TARGET mtmd PROPERTY UNITY_BUILD OFF)   # wemm-audio: unity 拼接破坏语法上下文(实验)
             ${MTMD_CORE_SOURCES}
             models/models.h
             models/chatterbox-gen.cpp
@@ -112,6 +111,7 @@ set_property(TARGET mtmd PROPERTY UNITY_BUILD OFF)   # wemm-audio: unity 拼接�
             models/yasa2.cpp
             models/parakeet.cpp
             )
+set_property(TARGET mtmd PROPERTY UNITY_BUILD OFF)   # wemm-audio: 禁 unity 拼接(实验)
 
 set_target_properties(mtmd PROPERTIES
     VERSION ${LLAMA_VERSION_BASE}
