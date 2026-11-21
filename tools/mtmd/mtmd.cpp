@@ -1498,6 +1498,10 @@ struct mtmd_context {
                 } break;
             case PROJECTOR_TYPE_WEMM_AUDIO:
                 {
+                    // WeMM expands its audio placeholder to <|audio_start|> + N*<|audio_pad|> + <|audio_end|>
+                    // (processing_wemm.py AUDIO pattern); the pad embeddings are replaced by the encoder output
+                    aud_beg = "<|audio_start|>";
+                    aud_end = "<|audio_end|>";
                     audio_preproc = std::make_unique<mtmd_audio_preprocessor_wemm_audio>(models.a.get());
                 } break;
             case PROJECTOR_TYPE_GRANITE_SPEECH:
